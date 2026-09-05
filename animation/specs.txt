@@ -1,0 +1,18 @@
+4 FPS
+20 BlinksPM -> 1/3
+
+4 Frames
+
+1  1Frame
+2  2Frame
+3  3Frame - B
+4  4Frame
+5  1Frame
+6  2Frame - B
+7  3Frame
+8  4Frame
+9  1Frame - B
+10 2Frame
+11 3Frame
+12 4Frame - B
+
