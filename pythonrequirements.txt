@@ -1,0 +1,10 @@
+all python libarries you need for this repo
+
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+pip install unsloth
+pip install trl
+pip install datasets
+pip install xformers
+
+all of this should run in an virtual enviroment
+If you have any questions, pleas don't ask me, I won't be able to help you.
