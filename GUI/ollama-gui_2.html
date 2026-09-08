@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit-02 — local Asuka model GUI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf3f3;
+    --surface: #FFFFFF;
+    --ink: #232019;
+    --ink-soft: #706A5C;
+    --brass: #A08655;
+    --brass-deep: #7D6840;
+    --line: #E7E1D3;
+    --moss: #3D6B54;
+    --moss-bg: #EAF1EC;
+    --rust: #B8451F;
+    --rust-bg: #FBEDE7;
+    --user-bg: #232019;
+    --user-fg: #FAF8F3;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(35,32,25,0.04), 0 8px 24px -12px rgba(35,32,25,0.10);
+    --shadow-float: 0 4px 16px -4px rgba(35,32,25,0.18);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', serif;
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  header {
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .title-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mark {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mark svg { width: 16px; height: 16px; }
+
+  .title-block h1 {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.1px;
+  }
+
+  .title-block .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 1px;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 14px 7px 11px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    flex-shrink: 0;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .status-dot.online { background: var(--moss); box-shadow: 0 0 0 3px var(--moss-bg); }
+  .status-dot.error { background: var(--rust); box-shadow: 0 0 0 3px var(--rust-bg); }
+
+  .config-row {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 32px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .config-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .config-field label {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  input, select {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    padding: 2px;
+    outline: none;
+  }
+
+  select { cursor: pointer; }
+  #serverUrl { width: 200px; }
+  #modelSelect { min-width: 160px; }
+
+  .refresh-btn {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--brass-deep);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .refresh-btn:hover { background: var(--moss-bg); color: var(--moss); }
+  .refresh-btn:active { transform: scale(0.97); }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 32px 16px;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .entry-row {
+    display: flex;
+    margin: 14px 0;
+    animation: rise 0.28s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry-row.user { justify-content: flex-end; }
+  .entry-row.assistant { justify-content: flex-start; }
+
+  .bubble {
+    max-width: 78%;
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  .entry-row.user .bubble {
+    background: var(--user-bg);
+    color: var(--user-fg);
+    border-bottom-right-radius: 6px;
+  }
+
+  .entry-row.assistant .bubble {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 6px;
+  }
+
+  .entry-row.assistant.error .bubble {
+    background: var(--rust-bg);
+    border-color: #ECC9BA;
+  }
+
+  .entry-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    margin-bottom: 6px;
+    opacity: 0.65;
+    display: flex;
+    gap: 8px;
+  }
+
+  .entry-body {
+    font-size: 16px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .entry-row.assistant.error .entry-body {
+    color: var(--rust);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .typing-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    height: 16px;
+  }
+
+  .typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    animation: bounce 1.1s infinite ease-in-out;
+  }
+
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .empty-state {
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 70px 20px;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  footer {
+    padding: 14px 32px 26px;
+    background: linear-gradient(to top, var(--paper) 60%, transparent);
+  }
+
+  .input-shell {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 8px 8px 8px 18px;
+    box-shadow: var(--shadow-float);
+  }
+
+  textarea {
+    flex: 1;
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    line-height: 1.5;
+    background: transparent;
+    border: none;
+    padding: 10px 0;
+    resize: none;
+    color: var(--ink);
+    outline: none;
+    min-height: 24px;
+    max-height: 180px;
+  }
+
+  textarea::placeholder { color: var(--ink-soft); opacity: 0.7; }
+
+  .send-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 999px;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .send-btn svg { width: 17px; height: 17px; }
+  .send-btn:hover:not(:disabled) { background: var(--moss); }
+  .send-btn:active:not(:disabled) { transform: scale(0.94); }
+  .send-btn:disabled {
+    background: var(--line);
+    color: var(--ink-soft);
+    cursor: not-allowed;
+  }
+
+  .hint {
+    max-width: 800px;
+    margin: 10px auto 0;
+    padding: 0 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  main::-webkit-scrollbar { width: 8px; }
+  main::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+  main::-webkit-scrollbar-track { background: transparent; }
+
+  @media (max-width: 640px) {
+    header, .config-row, main, footer { padding-left: 16px; padding-right: 16px; }
+    .bubble { max-width: 88%; }
+    .config-field { flex: 1 1 auto; }
+    #serverUrl { width: 100%; }
+  }
+
+  #animation {
+    position: fixed;
+    top: 150px;
+    left: 300px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-float);
+    z-index: 1000;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 12h4l2-7 4 14 2-7h4" stroke="#FAF8F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Unit-02</h1>
+      <div class="sub">a console for the shikinami models</div>
+    </div>
+  </div>
+  <div class="status-pill">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">checking connection…</span>
+  </div>
+</header>
+
+<div class="config-row">
+  <div class="config-field">
+    <label for="serverUrl">server</label>
+    <input type="text" id="serverUrl" value="http://localhost:11434" spellcheck="false">
+  </div>
+  <div class="config-field">
+    <label for="modelSelect">model</label>
+    <select id="modelSelect"><option value="">— none loaded —</option></select>
+  </div>
+  <button class="refresh-btn" id="refreshBtn">refresh</button>
+</div>
+
+<main id="log">
+  <div class="empty-state" id="emptyState">No entries yet.<br>Send something below to begin.</div>
+</main>
+
+<video  id="animation" loop width="270" height="270" autoplay muted playsinline>
+  <source src="Asuka64_270p.mp4" type="video/mp4">
+  Asuka is shy.
+</video>
+
+<footer>
+  <div class="input-shell">
+    <textarea id="promptInput" placeholder="Write to Asuka" rows="1"></textarea>
+    <button class="send-btn" id="sendBtn" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="hint" id="hintText">shift + enter for a new line</div>
+</footer>
+
+<script>
+(function () {
+  const serverUrlInput = document.getElementById('serverUrl');
+  const modelSelect = document.getElementById('modelSelect');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const log = document.getElementById('log');
+  const emptyState = document.getElementById('emptyState');
+  const promptInput = document.getElementById('promptInput');
+  const sendBtn = document.getElementById('sendBtn');
+
+  let history = [];
+  let isStreaming = false;
+
+  function baseUrl() {
+    return serverUrlInput.value.trim().replace(/\/+$/, '');
+  }
+
+  function setStatus(state, text) {
+    statusDot.className = 'status-dot' + (state ? ' ' + state : '');
+    statusText.textContent = text;
+  }
+
+  async function fetchModels() {
+    setStatus('', 'checking connection…');
+    try {
+      const res = await fetch(baseUrl() + '/api/tags');
+      if (!res.ok) throw new Error('server responded ' + res.status);
+      const data = await res.json();
+      const models = (data.models || []).map(m => m.name);
+
+      modelSelect.innerHTML = '';
+      if (models.length === 0) {
+        modelSelect.innerHTML = '<option value="">— no models found —</option>';
+        setStatus('error', 'connected, but no models pulled');
+        return;
+      }
+      models.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        modelSelect.appendChild(opt);
+      });
+      setStatus('online', models.length + ' model' + (models.length === 1 ? '' : 's') + ' available');
+    } catch (err) {
+      modelSelect.innerHTML = '<option value="">— unreachable —</option>';
+      setStatus('error', 'cannot reach server at this address');
+    }
+  }
+
+  function addEntry(role, who, text, opts) {
+    opts = opts || {};
+    emptyState.style.display = 'none';
+
+    const row = document.createElement('div');
+    row.className = 'entry-row ' + role + (opts.error ? ' error' : '');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    const meta = document.createElement('div');
+    meta.className = 'entry-meta';
+    meta.textContent = who + ' · ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+    const body = document.createElement('div');
+    body.className = 'entry-body';
+
+    if (opts.thinking) {
+      body.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+    } else {
+      body.textContent = text;
+    }
+
+    bubble.appendChild(meta);
+    bubble.appendChild(body);
+    row.appendChild(bubble);
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+    return body;
+  }
+
+  async function sendPrompt() {
+    if (isStreaming) return;
+    const text = promptInput.value.trim();
+    const model = modelSelect.value;
+
+    if (!model) {
+      addEntry('assistant', 'bench', 'Select a model above before sending.', {error: true});
+      return;
+    }
+    if (!text) return;
+
+    addEntry('user', 'you', text);
+    history.push({role: 'user', content: text});
+    promptInput.value = '';
+    autoResize();
+
+    isStreaming = true;
+    sendBtn.disabled = true;
+
+    const responseBody = addEntry('assistant', model, '', {thinking: true});
+    let fullReply = '';
+    let firstChunk = true;
+
+    try {
+      const res = await fetch(baseUrl() + '/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          model: model,
+          messages: history,
+          stream: true
+        })
+      });
+
+      if (!res.ok || !res.body) throw new Error('server responded ' + res.status);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, {stream: true});
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const json = JSON.parse(line);
+          if (json.message && json.message.content) {
+            if (firstChunk) {
+              responseBody.innerHTML = '';
+              firstChunk = false;
+            }
+            fullReply += json.message.content;
+            responseBody.textContent = fullReply;
+            log.scrollTop = log.scrollHeight;
+          }
+        }
+      }
+
+      history.push({role: 'assistant', content: fullReply});
+    } catch (err) {
+      responseBody.parentElement.parentElement.classList.add('error');
+      responseBody.textContent = 'Request failed: ' + err.message + '. Check the server address and that Ollama is running.';
+      history.pop();
+    } finally {
+      isStreaming = false;
+      sendBtn.disabled = false;
+    }
+  }
+
+  function autoResize() {
+    promptInput.style.height = 'auto';
+    promptInput.style.height = Math.min(promptInput.scrollHeight, 180) + 'px';
+  }
+
+  promptInput.addEventListener('input', autoResize);
+  promptInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendPrompt();
+    }
+  });
+
+  sendBtn.addEventListener('click', sendPrompt);
+  refreshBtn.addEventListener('click', fetchModels);
+  serverUrlInput.addEventListener('change', fetchModels);
+
+  fetchModels();
+})();
+</script>
+
+</body>
+</html>
